@@ -1,13 +1,14 @@
 import System.IO
 import System.Environment
-import qualified GimmeModels.Types as BT
-import qualified GimmeModels.Lang.ObjectiveC.Types as OC
-import qualified GimmeModels.Schema.JSONSchema.Types as JS
-import Data.List
+mport Data.List
 import Data.Maybe
 import System.Exit
 import Data.Foldable (foldlM)
 import System.Console.GetOpt
+
+import qualified GimmeModels.Types as BT
+import qualified GimmeModels.Lang.ObjectiveC.Types as OC
+import qualified GimmeModels.Schema.JSONSchema.Types as JS
 
 data Options = Options {
       optTargetLang   :: String
@@ -48,18 +49,21 @@ options helpMessage =
     , Option ['e']["suffix"] (ReqArg (\str opts -> do return $ opts { optClassSuffix = Just str}) "suffix")
              "set class suffix for generated models" ] 
 
+-- | TODO: This code is kind of messy, should rewrite it later
 parseArgs = do
     argv     <- getArgs
     progName <- getProgName
-    let header = "Usage: " ++ progName ++ " [OPTIONS...] path-to-schema"
+
+    let header      = "Usage: " ++ progName ++ " [OPTIONS...] path-to-schema"
         helpMessage = usageInfo header (options "")
+
     case getOpt RequireOrder (options helpMessage) argv of
         (opts, files, []) -> case files of 
                                 [] -> do putStrLn helpMessage; exitSuccess 
                                 _  -> foldlM (flip id) (defaultOptions {optInput = files}) opts
         (_, _, errs) -> ioError (userError (concat errs ++ helpMessage))
 
-
+-- | Parse Model according to Options
 getModel :: Options -> String -> BT.Model 
 getModel opts sc = 
     case schemaT of 
@@ -71,7 +75,7 @@ getModel opts sc =
        schemaT = optSchemaType opts
        super   = optSuperclass opts
 
-
+-- | Generate files from model
 getFiles :: BT.Model -> Options -> [BT.File]
 getFiles mdl opts = 
     case lang of 
@@ -84,7 +88,8 @@ getFiles mdl opts =
 
 -- | Read file with specific encoding
 readFile' e name = do {h <- openFile name ReadMode; hSetEncoding h e; hGetContents h}  
-  
+
+-- | Run generations with options  
 run opts = do 
     let file = head $ optInput opts
     content <- readFile' utf8_bom file
