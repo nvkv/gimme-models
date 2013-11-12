@@ -1,3 +1,6 @@
+module Main 
+where
+
 import System.IO
 import System.Environment
 mport Data.List
