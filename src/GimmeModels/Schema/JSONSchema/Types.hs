@@ -73,7 +73,7 @@ instance BT.FromSchema Schema where
                                         Nothing   -> error "Model's name not specified"
  
 fromSchemaProps :: PropertiesMap -> [BT.Property]
-fromSchemaProps ps = map (fromSchemaProp) $ toList ps 
+fromSchemaProps ps = fromSchemaProp <$> toList ps 
 
 fromSchemaProp :: (String, Schema) -> BT.Property
 fromSchemaProp (k, s) = BT.Property { BT.propName = k, BT.propType = t }
