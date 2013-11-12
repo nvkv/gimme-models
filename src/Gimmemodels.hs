@@ -3,7 +3,7 @@ where
 
 import System.IO
 import System.Environment
-mport Data.List
+import Data.List
 import Data.Maybe
 import System.Exit
 import Data.Foldable (foldlM)
