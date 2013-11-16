@@ -63,14 +63,12 @@ instance FromJSON Schema where
 instance BT.FromSchema Schema where
     fromSchema s n sc = BT.Model { BT.modelName = mname, BT.modelProps = props, BT.modelParent = sc }
         where 
-           props = case (properties s) of 
+           props = case properties s of 
                         Just ps -> fromSchemaProps ps 
                         Nothing -> [] 
-           mname = case (title s) of 
-                       Just name -> unpack $ name
-                       Nothing   -> case n of 
-                                        Just name -> name
-                                        Nothing   -> error "Model's name not specified"
+           mname = case title s of 
+                       Just name -> unpack name
+                       Nothing   -> fromMaybe (error "Model's name not specified") n
  
 fromSchemaProps :: PropertiesMap -> [BT.Property]
 fromSchemaProps ps = fromSchemaProp <$> toList ps 
@@ -78,7 +76,7 @@ fromSchemaProps ps = fromSchemaProp <$> toList ps
 fromSchemaProp :: (String, Schema) -> BT.Property
 fromSchemaProp (k, s) = BT.Property { BT.propName = k, BT.propType = t }
     where 
-        t = BT.Type $ case (_type s) of 
+        t = BT.Type $ case _type s of 
                           Just t' -> case t' of 
                                       (Single   x)  -> unpack x
                                       (Multiple xs) -> unpack $ head xs -- TODO: here we take only first type from list, maybe this isn't right thing

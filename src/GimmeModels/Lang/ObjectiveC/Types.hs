@@ -3,6 +3,7 @@ where
 
 import qualified GimmeModels.Types as BT
 import Data.List
+import Data.Maybe
 
 -- | Objective-C Class Model
 data Model = Model {
@@ -15,11 +16,11 @@ data Model = Model {
 ocHeader :: Model -> String
 ocHeader m = "#import <Foundation/Foundation.h>\n\n" ++
              headers ++ "\n\n" ++
-             "@interface " ++ (BT.modelName $ baseModel m) ++ " : " ++ (show $ superclass m) ++ "\n\n" ++
-             (intercalate "\n" $ map (show) $ modelProps m) ++
+             "@interface " ++ BT.modelName (baseModel m) ++ " : " ++ show (superclass m) ++ "\n\n" ++
+             intercalate "\n" (map show $ modelProps m) ++
              "\n\n@end\n"
     where
-        headers = case (show $ superclass m) of
+        headers = case show $ superclass m of
                     "NSObject" -> ""
                     sc         -> "#import \"" ++ sc ++ ".h\"\n" 
   
@@ -29,42 +30,37 @@ ocImplementation m = "#import \"" ++ mname ++ ".h\"\n\n" ++
                      "@implementation " ++ mname ++ "\n" ++
                      "@end\n"
                      where 
-                        mname = (BT.modelName $ baseModel m)
+                        mname = BT.modelName $ baseModel m
 
 -- For debugging purposes we will show Model 
 instance Show Model where 
-    show m = (ocHeader m) ++ "\n ------\n" ++ (ocImplementation m)
+    show m = ocHeader m ++ "\n ------\n" ++ ocImplementation m
 
 -- 
 -- Model must be instance of TargetModel typeclass
 -- 
 instance BT.TargetModel Model where
     fromBase m opts = Model { 
-          baseModel  = m { BT.modelName = "_" ++ prefix ++ (BT.modelName m) ++ postfix }
+          baseModel  = m { BT.modelName = "_" ++ prefix ++ BT.modelName m ++ postfix }
         , superclass = sc
-        , modelProps = map (BT.fromBaseProp) $ BT.modelProps m
+        , modelProps = map BT.fromBaseProp $ BT.modelProps m
         }
-        where sc = case (BT.modelParent m) of
+        where sc = case BT.modelParent m of
                         Just (BT.Type t) -> Type t
                         Nothing          -> Type "NSObject"
-              prefix = case (BT.namePrefix opts) of 
-                           Just pf -> pf
-                           Nothing -> ""
-              postfix = case (BT.namePostfix opts) of 
-                            Just pf -> pf
-                            Nothing -> ""
+              prefix  = fromMaybe "" (BT.namePrefix opts)
+              postfix = fromMaybe "" (BT.namePostfix opts)
 
     -- | This function will generate "_" prefixed class for actual model, and normal-named file that subclasses actual model
     generate m = [hdr, imp] ++ generateFinal 
             where 
-                mn  = (BT.modelName $ baseModel m)
+                mn  = BT.modelName $ baseModel m
                 hdr = BT.File { BT.fileName = mn ++ ".h", BT.fileContent = ocHeader m }
                 imp = BT.File { BT.fileName = mn ++ ".m", BT.fileContent = ocImplementation m }
-
-                generateFinal = 
-                    case ("_" `isPrefixOf` mn) of -- If this is not already final model
-                        True  -> BT.generate m'
-                        False -> []
+                
+                generateFinal =
+                     -- If this is not already final model
+                    if "_" `isPrefixOf` mn then BT.generate m' else []
                         where 
                             m'  = m { baseModel  = finalNamedM $ baseModel m 
                                     , superclass = Type mn
@@ -83,7 +79,7 @@ data Property = Property {
 instance Show Property where
     show p = "@property (" ++ attrs ++ ") " ++ ptype ++ " " ++ pname ++ ";" 
         where 
-            attrs = intercalate ", " $ map (show) $ propAttrs p
+            attrs = intercalate ", " $ map show $ propAttrs p
             ptype = show $ propType p
             pname = BT.propName $ baseProp p
 

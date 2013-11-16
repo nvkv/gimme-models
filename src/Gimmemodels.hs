@@ -34,22 +34,22 @@ defaultOptions = Options {
 options :: String -> [OptDescr (Options -> IO Options)]
 
 options helpMessage = 
-    [ Option ['h'] ["help"] 
+    [ Option "h" ["help"] 
              (NoArg (\_ -> do putStr helpMessage; exitSuccess)) 
              "print usage information"
-    , Option ['s']["schema"] 
-             (ReqArg (\str opts -> do return $ opts { optSchemaType = str }) "schema")
+    , Option "s" ["schema"] 
+             (ReqArg (\str opts -> return $ opts { optSchemaType = str }) "schema")
              "*IGNORING* set specific schema type (json-schema assuming default)"
-    , Option ['l']["lang"]
-             (ReqArg (\str opts -> do return $ opts { optTargetLang = str }) "language")
+    , Option "l" ["lang"]
+             (ReqArg (\str opts -> return $ opts { optTargetLang = str }) "language")
              "*IGNORING* target language"
-    , Option ['b']["prefix"]
-            (ReqArg (\str opts -> do return $ opts { optClassPrefix = Just str}) "prefix")
+    , Option "b" ["prefix"]
+            (ReqArg (\str opts -> return $ opts { optClassPrefix = Just str}) "prefix")
             "set class prefix for generated models"
-    , Option ['p']["superclass"]
-             (ReqArg (\str opts -> do return $ opts { optSuperclass = Just $ BT.Type str }) "superclass")
+    , Option "p" ["superclass"]
+             (ReqArg (\str opts -> return $ opts { optSuperclass = Just $ BT.Type str }) "superclass")
              "generated models custom superclass"
-    , Option ['e']["suffix"] (ReqArg (\str opts -> do return $ opts { optClassSuffix = Just str}) "suffix")
+    , Option "e" ["suffix"] (ReqArg (\str opts -> return $ opts { optClassSuffix = Just str }) "suffix")
              "set class suffix for generated models" ] 
 
 -- | TODO: This code is kind of messy, should rewrite it later
@@ -70,7 +70,7 @@ parseArgs = do
 getModel :: Options -> String -> BT.Model 
 getModel opts sc = 
     case schemaT of 
-        "json-schema" -> case (JS.parseSchemaFromString sc) of 
+        "json-schema" -> case JS.parseSchemaFromString sc of 
                             Just s  -> BT.fromSchema s Nothing super 
                             Nothing -> error "Can't parse schema"
         _ -> error "Unknown schema type"
