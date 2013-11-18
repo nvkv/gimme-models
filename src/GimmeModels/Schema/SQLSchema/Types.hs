@@ -3,9 +3,7 @@
 module GimmeModels.Schema.SQLSchema.Types
 where
 
-import Control.Applicative
-import Data.Char
-import Data.ByteString
+import Data.Char (isSpace)
 
 import qualified Data.ByteString.Char8 as C 
 import qualified Data.Attoparsec.Char8 as P
