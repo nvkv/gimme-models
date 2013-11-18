@@ -18,7 +18,8 @@ data Table = Table {
 
 tableParser :: P.Parser Table
 tableParser = do
-    P.string "create table "
+    P.string "create table"
+    P.skipWhile (isSpace)
     n <- P.takeWhile (not . isSpace)
     P.skipWhile (isSpace)
     P.char '(' 
