@@ -101,11 +101,9 @@ drioBom str = str
 -- | Read file with specific encoding
 readFile' e name = do {h <- openFile name ReadMode; hSetEncoding h e; hGetContents h}  
 
-fetch url = withSocketsDo $ simpleHttp url
-
 getSchemaContent :: String -> IO String
 getSchemaContent path 
-    | "http" `isPrefixOf` path = do { s <- fetch path; return $ dropBom $ C.unpack s } 
+    | "http" `isPrefixOf` path = do { s <- withSocketsDo $ simpleHttp path; return $ dropBom $ C.unpack s } 
     | otherwise = readFile' utf8_bom path
  
 
