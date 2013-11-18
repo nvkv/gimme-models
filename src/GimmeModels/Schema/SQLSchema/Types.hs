@@ -4,12 +4,12 @@ module GimmeModels.Schema.SQLSchema.Types
 where
 
 import Control.Applicative
-import qualified Data.Attoparsec.Char8 as P
-import Data.ByteString
-import qualified Data.ByteString.Char8 as C 
 import Data.Char
+import Data.ByteString
 
-import qualified GimmeModels.Types as BT
+import qualified Data.ByteString.Char8 as C 
+import qualified Data.Attoparsec.Char8 as P
+import qualified GimmeModels.Types     as BT
 
 data Table = Table {
       tableName   :: String 
