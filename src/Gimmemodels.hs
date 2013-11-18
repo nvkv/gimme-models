@@ -8,6 +8,9 @@ import Data.Maybe
 import System.Exit
 import Data.Foldable (foldlM)
 import System.Console.GetOpt
+import Network.HTTP.Conduit
+import qualified Data.ByteString.Lazy.Char8 as C 
+import qualified Data.ByteString.Lazy  as BSL
 
 import qualified GimmeModels.Types as BT
 import qualified GimmeModels.Lang.ObjectiveC.Types as OC
@@ -92,10 +95,16 @@ getFiles mdl opts =
 -- | Read file with specific encoding
 readFile' e name = do {h <- openFile name ReadMode; hSetEncoding h e; hGetContents h}  
 
+getSchemaContent :: String -> IO String
+getSchemaContent path 
+    | "http" `isPrefixOf` path = do { s <- simpleHttp path; return $ C.unpack s } 
+    | otherwise                = readFile' utf8_bom path
+ 
+
 -- | Run generations with options  
 run opts = do 
     let file = head $ optInput opts
-    content <- readFile' utf8_bom file
+    content <- getSchemaContent file 
 
     let bmodel = getModel opts content
         files  = getFiles bmodel opts
