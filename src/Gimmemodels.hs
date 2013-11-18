@@ -92,13 +92,18 @@ getFiles mdl opts =
             prefix  = optClassPrefix opts
             suffix  = optClassSuffix opts
 
+
+dropBom :: String -> String
+dropBom ('\239':'\187':'\191':str) = str 
+drioBom str = str
+
 -- | Read file with specific encoding
 readFile' e name = do {h <- openFile name ReadMode; hSetEncoding h e; hGetContents h}  
 
 getSchemaContent :: String -> IO String
 getSchemaContent path 
-    | "http" `isPrefixOf` path = do { s <- simpleHttp path; return $ C.unpack s } 
-    | otherwise                = readFile' utf8_bom path
+    | "http" `isPrefixOf` path = do { s <- simpleHttp path; return $ dropBom $ C.unpack s } 
+    | otherwise = readFile' utf8_bom path
  
 
 -- | Run generations with options  
