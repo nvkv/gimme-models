@@ -11,6 +11,7 @@ import System.Console.GetOpt
 import Network.HTTP.Conduit
 import qualified Data.ByteString.Lazy.Char8 as C 
 import qualified Data.ByteString.Lazy  as BSL
+import Network (withSocketsDo)
 
 import qualified GimmeModels.Types as BT
 import qualified GimmeModels.Lang.ObjectiveC.Types as OC
@@ -100,9 +101,11 @@ drioBom str = str
 -- | Read file with specific encoding
 readFile' e name = do {h <- openFile name ReadMode; hSetEncoding h e; hGetContents h}  
 
+fetch url = withSocketsDo $ simpleHttp url
+
 getSchemaContent :: String -> IO String
 getSchemaContent path 
-    | "http" `isPrefixOf` path = do { s <- simpleHttp path; return $ dropBom $ C.unpack s } 
+    | "http" `isPrefixOf` path = do { s <- fetch path; return $ dropBom $ C.unpack s } 
     | otherwise = readFile' utf8_bom path
  
 
