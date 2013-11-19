@@ -30,7 +30,6 @@ tableParser = do
     P.skipSpace
     P.char '(' 
     fs <- P.manyTill fieldParser (P.string ");")
-    -- P.stringCI "create table"
     return $ Table (C.unpack n) fs 
 
 data Field = Field {
