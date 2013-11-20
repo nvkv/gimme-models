@@ -4,7 +4,8 @@ Tool for model code generation from various data schemas.
 
 Supported schemas:
 
-* json-schema
+* JSON Schema (-s json-schema)
+* No-Brain SQL Schema. Only create table (-s sql-schema)
 
 Supported target languages:
 
