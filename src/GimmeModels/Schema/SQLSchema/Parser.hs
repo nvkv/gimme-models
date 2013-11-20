@@ -1,6 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module GimmeModels.Schema.SQLSchema.Parser (Schema(..), Table(..), Field(..), parseSchema)
+module GimmeModels.Schema.SQLSchema.Parser 
+(
+      Schema(..)
+    , Table(..)
+    , Field(..)
+    , parseSchema
+)
 where
 
 import Data.Char (isSpace, toLower)

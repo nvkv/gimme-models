@@ -1,10 +1,11 @@
 module GimmeModels.Schema.SQLSchema.Types
 where
 
-import Data.Char (toUpper, toLower)
+import Data.Char             (toUpper, toLower)
 import Data.ByteString.Char8 (split, pack, unpack)
-import qualified GimmeModels.Types as BT
+
 import GimmeModels.Schema.SQLSchema.Parser
+import qualified GimmeModels.Types as BT
 
 instance BT.FromSchema Schema where
     fromSchema s n sc = models
