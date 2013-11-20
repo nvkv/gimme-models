@@ -96,7 +96,7 @@ getFiles mdl opts =
 
 dropBom :: String -> String
 dropBom ('\239':'\187':'\191':str) = str 
-drioBom str = str
+dropBom str = str
 
 -- | Read file with specific encoding
 readFile' e name = do {h <- openFile name ReadMode; hSetEncoding h e; hGetContents h}  
