@@ -12,12 +12,13 @@ import Data.Foldable (foldlM)
 import System.Console.GetOpt
 import Network.HTTP.Conduit
 import qualified Data.ByteString.Lazy.Char8 as C 
-import qualified Data.ByteString.Lazy  as BSL
+import qualified Data.ByteString.Lazy       as BSL
 import Network (withSocketsDo)
 
-import qualified GimmeModels.Types as BT
-import qualified GimmeModels.Lang.ObjectiveC.Types as OC
+import qualified GimmeModels.Types                   as BT
+import qualified GimmeModels.Lang.ObjectiveC.Types   as OC
 import qualified GimmeModels.Schema.JSONSchema.Types as JS
+import qualified GimmeModels.Schema.SQLSchema.Types  as SQL
 
 data Options = Options {
       optTargetLang   :: String
@@ -73,10 +74,13 @@ parseArgs = do
         (_, _, errs) -> ioError (userError (concat errs ++ helpMessage))
 
 -- | Parse Model according to Options
-getModel :: Options -> String -> BT.Model 
-getModel opts sc = 
+getModels :: Options -> String -> [BT.Model] 
+getModels opts sc = 
     case schemaT of 
         "json-schema" -> case JS.parseSchemaFromString sc of 
+                            Just s  -> BT.fromSchema s Nothing super 
+                            Nothing -> error "Can't parse schema"
+        "sql-schema"  -> case SQL.parseSchemaFromString sc of
                             Just s  -> BT.fromSchema s Nothing super 
                             Nothing -> error "Can't parse schema"
         _ -> error "Unknown schema type"
@@ -114,8 +118,8 @@ run opts = do
     let file = head $ optInput opts
     content <- getSchemaContent file 
 
-    let bmodel = getModel opts content
-        files  = getFiles bmodel opts
+    let bmodels = getModels opts content
+        files   = concat $ map (\m -> getFiles m opts) bmodels
 
     filesToWrite <- filterM (\f -> do
                                 e <- doesFileExist (BT.fileName f)

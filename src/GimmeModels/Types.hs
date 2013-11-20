@@ -43,4 +43,5 @@ class TargetProperty a where
 data Type = Type String deriving (Eq, Show)
 
 class FromSchema a where
-    fromSchema :: a -> Maybe String -> Maybe Type -> Model
+    fromSchema :: a -> Maybe String -> Maybe Type -> [Model]
+

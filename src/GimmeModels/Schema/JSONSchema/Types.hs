@@ -61,7 +61,7 @@ instance FromJSON Schema where
      parseJSON _ = empty
 
 instance BT.FromSchema Schema where
-    fromSchema s n sc = BT.Model { BT.modelName = mname, BT.modelProps = props, BT.modelParent = sc }
+    fromSchema s n sc = [BT.Model { BT.modelName = mname, BT.modelProps = props, BT.modelParent = sc }]
         where 
            props = case properties s of 
                         Just ps -> fromSchemaProps ps 
