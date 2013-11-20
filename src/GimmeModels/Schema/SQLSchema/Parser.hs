@@ -3,7 +3,7 @@
 module GimmeModels.Schema.SQLSchema.Parser (Schema(..), Table(..), Field(..), parseSchema)
 where
 
-import Data.Char (isSpace)
+import Data.Char (isSpace, toLower)
 import Control.Applicative
 
 import qualified Data.ByteString.Char8 as C 
@@ -24,11 +24,9 @@ data Table = Table {
 tableParser :: P.Parser Table
 tableParser = do
     P.manyTill P.anyChar $ P.stringCI "create table"
-    --P.skipSpace
     P.skipWhile fieldGarbage
     n <- P.takeWhile (not . fieldGarbage)
     P.skipWhile fieldGarbage 
-    --P.skipSpace
     P.char '(' 
     fs <- fieldParser `P.sepBy` (P.char ',')
     P.manyTill P.anyChar (P.char ';')
@@ -52,8 +50,13 @@ fieldParser = do
     return $ Field (C.unpack n) (C.unpack t)
 
 parseSchema :: String -> Maybe Schema
-parseSchema s = 
-    case P.parseOnly schemaParser (C.pack s) of 
-         Right s -> Just s
+parseSchema str = 
+    case P.parseOnly schemaParser (C.pack str) of 
+         Right s -> Just $ cleanSchema s
          Left  e -> Nothing
+    where 
+        cleanSchema s = Schema $ cleanTables s
+        cleanTables s = map cleanTable (schemaTables s)
+        cleanTable t  = t { tableFields = filter (\f -> (lower (fieldType f)) /= lower "key") (tableFields t) } 
+        lower s       = map toLower s
 

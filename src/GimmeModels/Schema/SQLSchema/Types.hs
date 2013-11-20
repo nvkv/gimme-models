@@ -18,7 +18,10 @@ tableToModel modelName superClass t = BT.Model {
     , BT.modelProps  = map fieldToProp (tableFields t)
     }
     where
-        fieldToProp f = BT.Property { BT.propName = camelize Prop (fieldName f), BT.propType = BT.Type (fieldType f) }   
+        fieldToProp f = BT.Property { 
+              BT.propName = camelize Prop (fieldName f)
+            , BT.propType = BT.Type $ map toLower (fieldType f) 
+            }   
 
 data CamelizeMode = Class | Prop
 
@@ -29,6 +32,5 @@ camelize mode s = foldl (capitalizeFirst mode) "" $ splitS str
         splitS s'                    = [unpack  s | s <- (split '_' $ pack s')]
         capitalizeFirst Prop "" s    = s
         capitalizeFirst _ acc (c:cs) = acc ++ (toUpper c : cs)
-
 
 parseSchemaFromString = parseSchema 
