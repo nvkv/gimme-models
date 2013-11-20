@@ -12,8 +12,9 @@ module GimmeModels.Types
 where
 
 data File = File { 
-        fileName    :: String
-      , fileContent :: String 
+        fileName         :: String
+      , fileContent      :: String 
+      , fileOwerwritable :: Bool
       } deriving (Eq, Show)
 
 data NamingOptions = NamingOptions{

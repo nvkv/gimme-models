@@ -55,16 +55,17 @@ instance BT.TargetModel Model where
     generate m = [hdr, imp] ++ generateFinal 
             where 
                 mn  = BT.modelName $ baseModel m
-                hdr = BT.File { BT.fileName = mn ++ ".h", BT.fileContent = ocHeader m }
-                imp = BT.File { BT.fileName = mn ++ ".m", BT.fileContent = ocImplementation m }
+                hdr = BT.File { BT.fileName = mn ++ ".h", BT.fileContent = ocHeader m         , BT.fileOwerwritable = bModel }
+                imp = BT.File { BT.fileName = mn ++ ".m", BT.fileContent = ocImplementation m , BT.fileOwerwritable = bModel }
                 
+                bModel = "_" `isPrefixOf` mn 
                 generateFinal =
                      -- If this is not already final model
-                    if "_" `isPrefixOf` mn then BT.generate m' else []
+                    if bModel then BT.generate m' else []
                         where 
-                            m'  = m { baseModel  = finalNamedM $ baseModel m 
-                                    , superclass = Type mn
-                                    , modelProps = [] }
+                            m' = m { baseModel  = finalNamedM $ baseModel m 
+                                   , superclass = Type mn
+                                   , modelProps = [] }
                             finalNamedM mdl = mdl { BT.modelName  = dropWhile (== '_') $ BT.modelName mdl
                                                   , BT.modelProps = [] }
  

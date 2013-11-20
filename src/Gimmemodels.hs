@@ -6,6 +6,8 @@ import System.Environment
 import Data.List
 import Data.Maybe
 import System.Exit
+import System.Directory
+import Control.Monad (filterM)
 import Data.Foldable (foldlM)
 import System.Console.GetOpt
 import Network.HTTP.Conduit
@@ -115,7 +117,12 @@ run opts = do
     let bmodel = getModel opts content
         files  = getFiles bmodel opts
 
-    mapM_ (\f -> writeFile (BT.fileName f) (BT.fileContent f)) files
+    filesToWrite <- filterM (\f -> do
+                                e <- doesFileExist (BT.fileName f)
+                                return $ (not e) || (e && (BT.fileOwerwritable f))) 
+                            files
+
+    mapM_ (\f -> writeFile (BT.fileName f) (BT.fileContent f)) filesToWrite 
 
 main = do 
     options <- parseArgs
