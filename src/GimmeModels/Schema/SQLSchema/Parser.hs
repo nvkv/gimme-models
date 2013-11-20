@@ -30,7 +30,7 @@ tableParser = do
     P.skipWhile fieldGarbage 
     --P.skipSpace
     P.char '(' 
-    fs <- P.many1 fieldParser
+    fs <- fieldParser `P.sepBy` (P.char ',')
     P.manyTill P.anyChar (P.char ';')
     return $ Table (C.unpack n) fs 
 
@@ -44,11 +44,11 @@ fieldEnd = \c -> c == ',' || c == ')'
 
 fieldParser :: P.Parser Field
 fieldParser = do
-    P.skipWhile fieldGarbage 
+    P.skipWhile fieldGarbage
     n <- P.takeWhile (not . fieldGarbage)
     P.skipWhile fieldGarbage
     t <- P.takeWhile (not . fieldGarbage) 
-    P.manyTill P.anyChar $ P.char ',' <|> (P.char ')')
+    P.takeTill (\c -> c == ',' || c == ';')
     return $ Field (C.unpack n) (C.unpack t)
 
 parseSchema :: String -> Maybe Schema
