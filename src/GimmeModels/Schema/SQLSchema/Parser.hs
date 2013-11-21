@@ -34,7 +34,7 @@ tableParser = do
     n <- P.takeWhile (not . fieldGarbage)
     P.skipWhile fieldGarbage 
     P.char '(' 
-    fs <- fieldParser `P.sepBy` (P.char ',')
+    fs <- fieldParser `P.sepBy` P.char ','
     P.manyTill P.anyChar (P.char ';')
     return $ Table (C.unpack n) fs 
 
@@ -43,15 +43,17 @@ data Field = Field {
     , fieldType :: String
     } deriving (Show)
 
-fieldGarbage = \c -> isSpace c || c == ',' || c == '\"'
-fieldEnd = \c -> c == ',' || c == ')' 
+fieldGarbage c = isSpace c || c == ',' || c == '\"'
+fieldEnd c = c == ',' || c == ')' 
+
+parseStr = do 
+    P.skipWhile fieldGarbage
+    P.takeWhile (not . fieldGarbage)
 
 fieldParser :: P.Parser Field
 fieldParser = do
-    P.skipWhile fieldGarbage
-    n <- P.takeWhile (not . fieldGarbage)
-    P.skipWhile fieldGarbage
-    t <- P.takeWhile (not . fieldGarbage) 
+    n <- parseStr
+    t <- parseStr 
     P.takeTill (\c -> c == ',' || c == ';')
     return $ Field (C.unpack n) (C.unpack t)
 
@@ -63,6 +65,6 @@ parseSchema str =
     where 
         cleanSchema s = Schema $ cleanTables s
         cleanTables s = map cleanTable (schemaTables s)
-        cleanTable t  = t { tableFields = filter (\f -> (lower (fieldType f)) /= lower "key") (tableFields t) } 
-        lower s       = map toLower s
+        cleanTable t  = t { tableFields = filter (\f -> lower (fieldType f) /= lower "key") (tableFields t) } 
+        lower         = map toLower
 

@@ -28,7 +28,7 @@ camelize :: CamelizeMode -> String -> String
 camelize mode s = foldl (capitalizeFirst mode) "" $ splitS str
     where
         str                          = [toLower c | c <- s]
-        splitS s'                    = [unpack  s | s <- (split '_' $ pack s')]
+        splitS s'                    = [unpack  s | s <- split '_' $ pack s']
         capitalizeFirst Prop "" s    = s
         capitalizeFirst _ acc (c:cs) = acc ++ (toUpper c : cs)
 

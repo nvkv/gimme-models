@@ -119,11 +119,11 @@ run opts = do
     content <- getSchemaContent file 
 
     let bmodels = getModels opts content
-        files   = concat $ map (\m -> getFiles m opts) bmodels
+        files   = concatMap (`getFiles` opts) bmodels
 
     filesToWrite <- filterM (\f -> do
                                 e <- doesFileExist (BT.fileName f)
-                                return $ (not e) || (e && (BT.fileOwerwritable f))) 
+                                return $ not e || (e && BT.fileOwerwritable f)) 
                             files
 
     mapM_ (\f -> writeFile (BT.fileName f) (BT.fileContent f)) filesToWrite 
