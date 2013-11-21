@@ -8,10 +8,8 @@ import GimmeModels.Schema.SQLSchema.Parser
 import qualified GimmeModels.Types as BT
 
 instance BT.FromSchema Schema where
-    fromSchema s n sc = models
-        where 
-            models = map (tableToModel n sc) (schemaTables s) 
- 
+    fromSchema s n sc = map (tableToModel n sc) (schemaTables s)
+
 tableToModel :: Maybe String -> Maybe BT.Type -> Table -> BT.Model
 tableToModel modelName superClass t = BT.Model {
       BT.modelName   = camelize Class (tableName t)
@@ -19,19 +17,19 @@ tableToModel modelName superClass t = BT.Model {
     , BT.modelProps  = map fieldToProp (tableFields t)
     }
     where
-        fieldToProp f = BT.Property { 
+        fieldToProp f = BT.Property {
               BT.propName = camelize Prop (fieldName f)
-            , BT.propType = BT.Type $ map toLower (fieldType f) 
-            }   
+            , BT.propType = BT.Type $ map toLower (fieldType f)
+            }
 
 data CamelizeMode = Class | Prop
 
 camelize :: CamelizeMode -> String -> String
 camelize mode s = foldl (capitalizeFirst mode) "" $ splitS str
-    where 
+    where
         str                          = [toLower c | c <- s]
         splitS s'                    = [unpack  s | s <- (split '_' $ pack s')]
         capitalizeFirst Prop "" s    = s
         capitalizeFirst _ acc (c:cs) = acc ++ (toUpper c : cs)
 
-parseSchemaFromString = parseSchema 
+parseSchemaFromString = parseSchema
