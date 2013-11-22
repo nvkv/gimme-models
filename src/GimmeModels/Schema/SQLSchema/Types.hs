@@ -30,6 +30,8 @@ camelize mode s = foldl (capitalizeFirst mode) "" $ splitS str
         str                          = [toLower c | c <- s]
         splitS s'                    = [unpack  s | s <- split '_' $ pack s']
         capitalizeFirst Prop "" s    = s
+        capitalizeFirst _ acc (c:[]) = [toUpper c]
         capitalizeFirst _ acc (c:cs) = acc ++ (toUpper c : cs)
+        capitalizeFirst _ acc [] = "" 
 
 parseSchemaFromString = parseSchema

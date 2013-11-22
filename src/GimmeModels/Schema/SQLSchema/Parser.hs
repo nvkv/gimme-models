@@ -65,6 +65,6 @@ parseSchema str =
     where 
         cleanSchema s = Schema $ cleanTables s
         cleanTables s = map cleanTable (schemaTables s)
-        cleanTable t  = t { tableFields = filter (\f -> lower (fieldType f) /= lower "key") (tableFields t) } 
+        cleanTable t  = t { tableFields = filter isUseful (tableFields t) } 
         lower         = map toLower
-
+        isUseful f    = lower (fieldType f) /= "key" && lower (fieldName f) /= "constraint"
