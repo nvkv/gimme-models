@@ -18,5 +18,5 @@ cabal-version:       >=1.8
 executable gimme-models
   main-is:           Gimmemodels.hs  
   -- other-modules:       
-  build-depends:       base ==4.6.*, directory ==1.2.*, http-conduit ==1.9.*, bytestring ==0.10.*, network ==2.4.*, attoparsec ==0.10.*, aeson ==0.6.*, text ==0.11.*, containers ==0.5.*
+  build-depends:       base ==4.6.*, directory ==1.2.*, http-conduit ==2.0.*, bytestring ==0.10.*, network ==2.4.*, attoparsec ==0.10.*, aeson ==0.7.*, text ==0.11.*, containers ==0.5.*
   hs-source-dirs:      src
