@@ -1,5 +1,5 @@
 module GimmeModels.Lang.ObjectiveC.Types (Model(..), Property(..))
-where 
+where
 
 import qualified GimmeModels.Types as BT
 import Data.List
@@ -22,25 +22,25 @@ ocHeader m = "#import <Foundation/Foundation.h>\n\n" ++
     where
         headers = case show $ superclass m of
                     "NSObject" -> ""
-                    sc         -> "#import \"" ++ sc ++ ".h\"\n" 
-  
+                    sc         -> "#import \"" ++ sc ++ ".h\"\n"
+
 -- | Generates Model's implementation file content
 ocImplementation :: Model -> String
 ocImplementation m = "#import \"" ++ mname ++ ".h\"\n\n" ++
                      "@implementation " ++ mname ++ "\n" ++
                      "@end\n"
-                     where 
+                     where
                         mname = BT.modelName $ baseModel m
 
--- For debugging purposes we will show Model 
-instance Show Model where 
+-- For debugging purposes we will show Model
+instance Show Model where
     show m = ocHeader m ++ "\n ------\n" ++ ocImplementation m
 
--- 
+--
 -- Model must be instance of TargetModel typeclass
--- 
+--
 instance BT.TargetModel Model where
-    fromBase m opts = Model { 
+    fromBase m opts = Model {
           baseModel  = m { BT.modelName = "_" ++ prefix ++ BT.modelName m ++ postfix }
         , superclass = sc
         , modelProps = map BT.fromBaseProp $ BT.modelProps m
@@ -52,24 +52,24 @@ instance BT.TargetModel Model where
               postfix = fromMaybe "" (BT.namePostfix opts)
 
     -- | This function will generate "_" prefixed class for actual model, and normal-named file that subclasses actual model
-    generate m = [hdr, imp] ++ generateFinal 
-            where 
+    generate m = [hdr, imp] ++ generateFinal
+            where
                 mn  = BT.modelName $ baseModel m
                 hdr = BT.File { BT.fileName = mn ++ ".h", BT.fileContent = ocHeader m         , BT.fileOwerwritable = bModel }
                 imp = BT.File { BT.fileName = mn ++ ".m", BT.fileContent = ocImplementation m , BT.fileOwerwritable = bModel }
-                
-                bModel = "_" `isPrefixOf` mn 
+
+                bModel = "_" `isPrefixOf` mn
                 generateFinal =
                      -- If this is not already final model
                     if bModel then BT.generate m' else []
-                        where 
-                            m' = m { baseModel  = finalNamedM $ baseModel m 
+                        where
+                            m' = m { baseModel  = finalNamedM $ baseModel m
                                    , superclass = Type mn
                                    , modelProps = [] }
                             finalNamedM mdl = mdl { BT.modelName  = dropWhile (== '_') $ BT.modelName mdl
                                                   , BT.modelProps = [] }
- 
--- | Objective-C property 
+
+-- | Objective-C property
 data Property = Property {
       baseProp  :: BT.Property
     , propType  :: Type
@@ -78,8 +78,8 @@ data Property = Property {
 
 -- | 'show' method will be used to present Property as actual Objective-C code
 instance Show Property where
-    show p = "@property (" ++ attrs ++ ") " ++ ptype ++ " " ++ pname ++ ";" 
-        where 
+    show p = "@property (" ++ attrs ++ ") " ++ ptype ++ " " ++ pname ++ ";"
+        where
             attrs = intercalate ", " $ map show $ propAttrs p
             ptype = show $ propType p
             pname = BT.propName $ baseProp p
@@ -88,22 +88,22 @@ instance Show Property where
 data Type = Type String deriving (Eq)
 
 -- | Type will be Show instance to extract actual type string from it
-instance Show Type where 
+instance Show Type where
     show (Type t) = t
 
 -- | Enumeration of all possible Objective-C property attributes
-data PropAttribute =  Strong 
-                    | Weak 
+data PropAttribute =  Strong
+                    | Weak
                     | Copy
-                    | Retain 
-                    | Assign 
+                    | Retain
+                    | Assign
                     | Nonatomic
                     | Readwrite
-                    | Readonly 
+                    | Readonly
                     deriving (Eq, Bounded)
 
 instance Show PropAttribute where
-    show p = case p of 
+    show p = case p of
         Strong    -> "strong"
         Weak      -> "weak"
         Copy      -> "copy"
@@ -115,9 +115,9 @@ instance Show PropAttribute where
 
 --
 -- Objective-C Property must be instance of TargetProperty
--- 
+--
 instance BT.TargetProperty Property where
-    fromBaseProp p = Property { 
+    fromBaseProp p = Property {
           baseProp  = p
         , propType  = mapType ptype
         , propAttrs = typeAttrs ptype
@@ -126,7 +126,7 @@ instance BT.TargetProperty Property where
 
 -- | Mapping base types to Objective-C types
 mapType :: BT.Type -> Type
-mapType t = 
+mapType t =
     case t of
         BT.Type "string"    -> Type "NSString *"
         BT.Type "integer"   -> Type "NSNumber *"
@@ -137,10 +137,9 @@ mapType t =
         BT.Type "object"    -> Type "NSDictionary *"
         BT.Type "date-time" -> Type "NSDate *"
         otherwise           -> Type "NSString *"
-        
--- | In future this function will guess Objective-C 
+
+-- | In future this function will guess Objective-C
 -- | property attrubutes by base type. Or will not.
 -- | Now it assume all properties should be (nonatomic, strong)
 typeAttrs :: BT.Type -> [PropAttribute]
 typeAttrs _ = [Strong, Nonatomic]
-
