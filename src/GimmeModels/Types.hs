@@ -11,21 +11,21 @@ module GimmeModels.Types
 )
 where
 
-data File = File { 
+data File = File {
         fileName         :: String
-      , fileContent      :: String 
+      , fileContent      :: String
       , fileOwerwritable :: Bool
       } deriving (Eq, Show)
 
-data NamingOptions = NamingOptions{
+data NamingOptions = NamingOptions {
        namePrefix  :: Maybe String
      , namePostfix :: Maybe String
      }
 
-data Model = Model { 
+data Model = Model {
       modelName   :: String
-    , modelParent :: Maybe Type 
-    , modelProps  :: [Property] 
+    , modelParent :: Maybe Type
+    , modelProps  :: [Property]
     } deriving (Eq, Show)
 
 class TargetModel a where
@@ -45,4 +45,3 @@ data Type = Type String deriving (Eq, Show)
 class FromSchema a where
     -- | Some Model -> Maybe Model Name -> Maybe Superclass -> [Model]
     fromSchema :: a -> Maybe String -> Maybe Type -> [Model]
-

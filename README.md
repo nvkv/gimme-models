@@ -1,4 +1,5 @@
-# ג-models
+ג-models
+========
 
 Tool for model code generation from various data schemas.
 

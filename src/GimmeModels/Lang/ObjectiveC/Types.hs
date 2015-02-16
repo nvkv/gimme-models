@@ -20,7 +20,7 @@ ocHeader m = "#import <Foundation/Foundation.h>\n\n" ++
              intercalate "\n" (map show $ modelProps m) ++
              "\n\n@end\n"
     where
-        headers = case show $ superclass m of
+        headers = case show $ superclcass m of
                     "NSObject" -> ""
                     sc         -> "#import \"" ++ sc ++ ".h\"\n"
 
@@ -51,12 +51,20 @@ instance BT.TargetModel Model where
               prefix  = fromMaybe "" (BT.namePrefix opts)
               postfix = fromMaybe "" (BT.namePostfix opts)
 
-    -- | This function will generate "_" prefixed class for actual model, and normal-named file that subclasses actual model
+    -- | This function will generate "_" prefixed class for actual model,
+    -- | and normal-named file that subclasses actual model
     generate m = [hdr, imp] ++ generateFinal
             where
                 mn  = BT.modelName $ baseModel m
-                hdr = BT.File { BT.fileName = mn ++ ".h", BT.fileContent = ocHeader m         , BT.fileOwerwritable = bModel }
-                imp = BT.File { BT.fileName = mn ++ ".m", BT.fileContent = ocImplementation m , BT.fileOwerwritable = bModel }
+                hdr = BT.File {
+                    BT.fileName = mn ++ ".h", BT.fileContent = ocHeader m
+                  , BT.fileOwerwritable = bModel
+                  }
+                imp = BT.File {
+                    BT.fileName = mn ++ ".m"
+                  , BT.fileContent = ocImplementation m
+                  , BT.fileOwerwritable = bModel
+                  }
 
                 bModel = "_" `isPrefixOf` mn
                 generateFinal =
